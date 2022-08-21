@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.gaowenli.myapp.MainActivity;
@@ -20,7 +21,9 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void showToast(String message) {
+        Looper.prepare();
         Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+        Looper.loop();
     }
 
     public void navigateTo(Class cls) {

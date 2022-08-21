@@ -1,5 +1,6 @@
 package com.gaowenli.myapp.activity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,7 +10,12 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 
 import com.gaowenli.myapp.R;
+import com.gaowenli.myapp.api.Api;
+import com.gaowenli.myapp.api.ApiConfig;
+import com.gaowenli.myapp.api.GoCallback;
+import com.gaowenli.myapp.entity.LoginResponse;
 import com.gaowenli.myapp.util.AppConfig;
+import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
@@ -51,6 +57,10 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void login(String account, String pwd) {
+
+        navigateTo(HomeActivity.class);
+
+        /*
         if (account == null || account.length() <= 0) {
             showToast("请输入账号"); // 13612345678
             return;
@@ -60,35 +70,35 @@ public class LoginActivity extends BaseActivity {
             return;
         }
 
-        OkHttpClient client = new OkHttpClient.Builder().build();
-
-        Map m = new HashMap();
+        HashMap<String, Object> m = new HashMap();
         m.put("phone", account);
         m.put("password", pwd);
-
-        JSONObject jsonObject = new JSONObject(m);
-        String jsonString = jsonObject.toString();
-
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json;charset=utf-8"), jsonString);
-
-        Request request = new Request.Builder()
-                .url(AppConfig.BASE_URL + "/app/login")
-                .addHeader("contentType", "application/json;charset=utf-8")
-                .post(requestBody)
-                .build();
-
-        final Call call = client.newCall(request);
-        call.enqueue(new Callback() {
+        Api.config(ApiConfig.LOGIN, m).postRequest(new GoCallback() {
             @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("onFailure", e.getMessage());
+            public void onSuccess(String res) {
+                showToast(res);
+
+                Gson gson = new Gson();
+                LoginResponse response = gson.fromJson(res, LoginResponse.class);
+                if (response.getCode() == 0) {
+                    String token = response.getToken();
+                    SharedPreferences sp = getSharedPreferences("sp_go", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putString("token", token);
+                    editor.commit();
+
+                    navigateTo(HomeActivity.class);
+                    showToast("登陆成功");
+                } else {
+                    showToast("登陆失败");
+                }
             }
 
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String result = response.body().string();
-                Log.e("onResponse", result);
+            public void onFailure(Exception e) {
+
             }
         });
+        */
     }
 }
